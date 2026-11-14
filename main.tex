@@ -224,7 +224,7 @@ The proposed framework integrates catheter generation, catheter number determina
 \FloatBarrier
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.92\linewidth,height=0.78\textheight,keepaspectratio]{figures20261114/figure1.jpg}
+\includegraphics[width=0.92\linewidth,height=0.78\textheight,keepaspectratio]{figures/figure1.jpg}
 \caption{Overview of the integrated automated planning workflow for 3D-PIT-guided HDR-ISBT. The input insets show the patient's anatomical contours, with the HR-CTV in green, and the transvaginal template in relation to those contours. The output insets show an example catheter configuration with markers indicating source dwell positions and a three-dimensional view of the anatomical contours, catheter trajectories, and combined template with a patient-specific transperineal plate and guide channels. HR-CTV, high-risk clinical target volume; FISTA, fast iterative shrinkage-thresholding algorithm; SA, simulated annealing.}\label{fig:1}
 \end{figure}
 
@@ -242,9 +242,7 @@ Dwell-time optimization during catheter number determination and spatial configu
 
 Here, $t$ is the dwell-time vector, $T$ the HR-CTV, $\mathcal{O}$ the set of evaluated OARs, and $d$ the doses at sampling points in voxels overlapping the contoured structures. At sampling point $i$, $v_{i}^{T}$ and $v_{\text{ri}}^{O}$ are the HR-CTV and OAR $r$ volume fractions, respectively; $V_{T}$ and $V_{r}$ are their sums over all sampling points in the respective structures. $D_{T}^{\text{LB}}$ denotes the lower bound for HR-CTV D\textsubscript{90}, whereas $D_{r}^{\text{UB}}$ denotes the upper bound for OAR $r$: D\textsubscript{2cc} for the bladder, rectum, colon, and small intestine, and D\textsubscript{0.1cc} for the urethra. The set $\mathcal{A}_{T}\left( t \right)$ includes target points at or above the current D\textsubscript{90} but below $D_{T}^{\text{LB}}$; $\mathcal{A}_{r}\left( t \right)$ includes OAR points above $D_{r}^{\text{UB}}$ but at or below the current corresponding dose-volume metric. The dose weights were $\lambda_{T}$ = $\lambda_{r}$ = 100.
 
-For each fraction, $D_{T}^{\text{LB}}$ and $D_{r}^{\text{UB}}$ were set to the corresponding dose-volume metrics of the original, unrescaled clinical plan. These bounds remained fixed throughout optimization and feasibility assessment. Normalization to HR-CTV D\textsubscript{90} = 600 cGy was used only for eligibility assessment and plan comparisons.
-
-Group-sparsity optimization minimizes $F_{\text{dose}}\left( t \right) + F_{\text{sparse}}\left( t \right)$, where $F_{\text{sparse}}\left( t \right)$ is the group-sparsity penalty. During coverage checks and sequential pruning, dwell times are reoptimized using $F_{\text{dose}}\left( t \right)$ alone. During spatial configuration optimization at a fixed catheter count, dwell times are reoptimized for each feasible configuration proposal using $F_{\text{dose}}\left( t \right) + F_{\text{smooth}}\left( t \right)$, where $F_{\text{smooth}}\left( t \right)$ is the dwell-time smoothness penalty.
+For each fraction, $D_{T}^{\text{LB}}$ and $D_{r}^{\text{UB}}$ were set to the corresponding dose-volume metrics of the original, unrescaled clinical plan. These bounds remained fixed throughout optimization and feasibility assessment. Normalization to HR-CTV D\textsubscript{90} = 600 cGy was used only for eligibility assessment and plan comparisons. This common dose term serves as the baseline objective for dwell-time evaluation and is augmented with stage-specific regularization terms during subsequent catheter number determination and spatial configuration optimization.
 
 \subsubsection{Candidate Trajectory Generation and Initial Pool Construction}\label{sec:2-2-1}
 
@@ -253,7 +251,7 @@ As illustrated in Figure~\ref{fig:2}(A), the catheter-entry region comprised the
 \FloatBarrier
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.92\linewidth,height=0.78\textheight,keepaspectratio]{figures20261114/figure2.jpg}
+\includegraphics[width=0.92\linewidth,height=0.78\textheight,keepaspectratio]{figures/figure2.jpg}
 \caption{Candidate trajectory generation and initial-pool construction. (A) Generation and feasibility screening of candidate trajectories. $C_{e}$ and $C_{t}$ denote the area centroids of the convex hulls defining the entry and target sampling regions, and $P_{e}$ and $P_{t}$ denote points sampled on the entry and target sampling planes, respectively. The blue line connecting $P_{e}$ and $P_{t}$ illustrates a candidate trajectory. The azimuths $\theta_{e}$ and $\theta_{t}$ are measured from the positive \emph{x}-axis to the vector from the corresponding centroid to the sampled point in each plane. (B) Initial-pool construction using dose-guided core selection and random supplementation. Green and black trajectories in (B) represent core and randomly supplemented catheters, respectively.}\label{fig:2}
 \end{figure}
 
@@ -292,7 +290,7 @@ Here, $C$ is the number of candidate catheters in the initial catheter pool, and
 \FloatBarrier
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.92\linewidth,height=0.78\textheight,keepaspectratio]{figures20261114/figure3.jpg}
+\includegraphics[width=0.92\linewidth,height=0.78\textheight,keepaspectratio]{figures/figure3.jpg}
 \caption{Adaptive catheter number determination using group-sparsity optimization and sequential pruning. In (B), each tentative removal was subject to the 5\% cumulative dwell-time limit and was accepted only if, after dwell-time reoptimization, the dose objective was finite and HR-CTV D\textsubscript{90} was at least 95\% of its value in the original, unrescaled clinical plan.}\label{fig:3}
 \end{figure}
 
@@ -312,7 +310,7 @@ Here, $\varepsilon_{\max}$ is the maximum relative violation among active HR-CTV
 
 To safeguard HR-CTV coverage, we incorporated a feasibility check into the Group-Sparsity stage. At each check, dwell times were reoptimized by minimizing $F_{\text{dose}}\left( t \right)$ using the bound-constrained limited-memory Broyden--Fletcher--Goldfarb--Shanno (L-BFGS-B) algorithm,\cite{ref76,ref77} with nonnegative bounds and a limit of 50 iterations. The first coverage check was performed at iteration 551. Thereafter, checks were triggered whenever the active catheter count fell below that recorded at the latest successful check, without waiting for a block boundary. A configuration passed if the reoptimized HR-CTV D\textsubscript{90} was at least 95\% of the corresponding original, unrescaled clinical-plan D\textsubscript{90} ($D_{T}^{\text{LB}}$). The 95\% threshold was selected empirically to limit the allowable decrease in HR-CTV D\textsubscript{90} relative to the clinical reference at each feasibility check.
 
-Successful checks saved the active set and FISTA dwell times as the latest feasible anchor; L-BFGS-B dwell times were used only for assessment. Failure of the first coverage check terminated the workflow without proceeding to Pruning or spatial configuration optimization. A subsequent failure restored the latest feasible anchor and ended FISTA. In addition to a failed feasibility check, stopping criteria included three consecutive eligible block-end comparisons without an active-set change or reaching 20,000 iterations. Comparisons were eligible only if the active set had remained unchanged for at least 10 iterations and the final iteration had no line-search failure. Ineligible comparisons were skipped without changing the comparison reference or the stability count.
+Successful checks saved the active set and FISTA dwell times as the latest feasible anchor; L-BFGS-B dwell times were used only for assessment. Failure of the first coverage check terminated the workflow without proceeding to Pruning or spatial configuration optimization. A subsequent failure restored the latest feasible anchor and ended FISTA. In addition to a failed feasibility check, FISTA stopped when the active catheter set remained unchanged across three consecutive block-end evaluations (the active-set stability criterion) or when reaching the maximum limit of 20,000 iterations.
 
 Following the Group-Sparsity stage, sequential pruning was performed to explore further catheter reduction, as shown in Figure~\ref{fig:3}(B). Catheters were ranked once in ascending order of total dwell time in the final FISTA solution. The cumulative dwell time of removed catheters was capped at 5\% of that solution's total dwell time, with the ranking and cap fixed throughout Pruning. The same L-BFGS-B procedure was used to minimize $F_{\text{dose}}\left( t \right)$ for the complete active set before Pruning and after each tentative removal. Removal was accepted only if the reoptimized value of $F_{\text{dose}}\left( t \right)$ was finite and the reoptimized HR-CTV D\textsubscript{90} was at least 95\% of $D_{T}^{\text{LB}}$; otherwise, the last accepted solution was restored and Pruning stopped. This empirically selected D\textsubscript{90} tolerance allowed further catheter reduction while limiting the allowable decrease in reoptimized HR-CTV D\textsubscript{90} relative to the original, unrescaled clinical plan. Pruning also stopped if removing the next catheter would exceed the 5\% cumulative dwell-time limit or if only one catheter remained. The control flow for Group-Sparsity and Pruning is summarized in Algorithm A1 in Appendix A.2.
 
@@ -333,7 +331,7 @@ To explore alternative catheter combinations across the full feasible candidate 
 \FloatBarrier
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.92\linewidth,height=0.78\textheight,keepaspectratio]{figures20261114/figure4.jpg}
+\includegraphics[width=0.92\linewidth,height=0.78\textheight,keepaspectratio]{figures/figure4.jpg}
 \caption{Catheter spatial configuration optimization using SA-based catheter exchange and local geometric fine-tuning. Gray and orange trajectories indicate the original and proposed paths, respectively. The shared optimization loop in (C) is applied separately in both stages, with the catheter count held constant.}\label{fig:4}
 \end{figure}
 
@@ -370,7 +368,7 @@ All 94 plans completed the automated workflow. Figure~\ref{fig:5} shows the pair
 \FloatBarrier
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.92\linewidth,height=0.78\textheight,keepaspectratio]{figures20261114/figure5.jpg}
+\includegraphics[width=0.92\linewidth,height=0.78\textheight,keepaspectratio]{figures/figure5.jpg}
 \caption{Clinical versus final automated catheter counts. (A) Joint-frequency bubble plot. Circle area and the number inside indicate the frequency of each catheter-count combination; the dashed line indicates equal catheter counts. (B) Marginal-frequency distributions of clinical and final automated catheter counts. Bar heights and labels indicate the number of fraction plans at each catheter count.}\label{fig:5}
 \end{figure}
 
@@ -379,7 +377,7 @@ After normalization to HR-CTV D\textsubscript{90} = 600 cGy, the final automated
 \FloatBarrier
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.92\linewidth,height=0.65\textheight,keepaspectratio]{figures20261114/figure6.jpg}
+\includegraphics[width=0.92\linewidth,height=0.65\textheight,keepaspectratio]{figures/figure6.jpg}
 \caption{Comparison of clinical and final automated plans for a representative fraction. (A--C) Clinical plan and (D--F) final automated plan, showing axial dose distributions, sagittal dose distributions, and three-dimensional catheter configurations, respectively. (G) HR-CTV and (H) OAR cumulative dose--volume histograms comparing both plans. The HR-CTV volume was 56.44 cm\textsuperscript{3}, and catheter counts were six and four for the clinical and final automated plans, respectively. Both plans were individually normalized to an HR-CTV D\textsubscript{90} of 600 cGy.}\label{fig:6}
 \end{figure}
 
@@ -560,7 +558,7 @@ Total optimization time, s & 510.6 (405.9, 734.5) & 443.7 (372.8, 584.6) & \ensu
 \FloatBarrier
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.92\linewidth,height=0.48\textheight,keepaspectratio]{figures20261114/figure7.jpg}
+\includegraphics[width=0.92\linewidth,height=0.48\textheight,keepaspectratio]{figures/figure7.jpg}
 \caption{Final catheter configurations with and without the azimuthal constraint. Four selected fraction plans are shown in side and axial views of the template. HR-CTV volumes and final catheter counts are indicated for each plan. White arrows indicate projected crossings between catheter trajectories in the configurations without the azimuthal constraint.}\label{fig:7}
 \end{figure}
 
