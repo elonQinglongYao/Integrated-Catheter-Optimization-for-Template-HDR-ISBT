@@ -123,6 +123,8 @@
 
 All dwell times in the initial catheter pool were initialized to 1 s so that all catheters were initially active. FISTA used groupwise proximal updates with backtracking. The first block ran for 500 iterations before $K$ was updated. Each subsequent block began with 50 stabilization iterations without convergence assessment. After this period, 10 consecutive iterations ending in line-search failure triggered an early $K$ update and initiated the next block.
 
+A block-end comparison was eligible only if the active catheter set had remained unchanged for at least 10 iterations and the final iteration of the block did not end in line-search failure. Ineligible comparisons were skipped without changing the comparison reference or the stability count.
+
 \begin{algorithmblock}
 \setlength{\parskip}{0pt}
 \caption{Adaptive catheter number determination using Group-Sparsity and Pruning.}\label{alg:1}
@@ -173,7 +175,7 @@ All dwell times in the initial catheter pool were initialized to 1 s so that all
 \specialrule{1.5pt}{1.5pt}{1.5pt}
 \end{tabularx}
 \par\vspace{3pt}
-\noindent Note: $\mathcal{C}$ denotes the catheter set, and $\left| \mathcal{C} \right|$ its catheter count. $D_{T}^{\text{LB}}$ is the HR-CTV D\textsubscript{90} of the corresponding original, unrescaled clinical plan. DoseReopt minimizes $F_{\text{dose}}\left( t \right)$ using L-BFGS-B with nonnegative bounds and at most 50 iterations. CoverageCheckDue triggers at iteration 551 and subsequently when catheter count falls below that of the latest feasible anchor. KStageEnds and KStageStable follow the update and stability rules in Section 2.2.2 and Appendix A.2. For Pruning, $\tau_{c}$ denotes the total dwell time of catheter $c$ in the final FISTA solution; these values, the ascending removal order, and the 5\% deletion budget remain fixed throughout Pruning. Anchor stores the latest feasible catheter set and FISTA dwell times. The superscripts ``check'' and ``trial'' identify coverage-assessment and tentative-removal variables, respectively.\par
+\noindent Note: $\mathcal{C}$ denotes the catheter set, and $\left| \mathcal{C} \right|$ its catheter count. $D_{T}^{\text{LB}}$ is the HR-CTV D\textsubscript{90} of the corresponding original, unrescaled clinical plan. DoseReopt minimizes $F_{\text{dose}}\left( t \right)$ using L-BFGS-B with nonnegative bounds and at most 50 iterations. CoverageCheckDue triggers at iteration 551 and subsequently when catheter count falls below that of the latest feasible anchor. KStageEnds and KStageStable follow the block-update and stability-comparison rules described in Appendix A.2. For Pruning, $\tau_{c}$ denotes the total dwell time of catheter $c$ in the final FISTA solution; these values, the ascending removal order, and the 5\% deletion budget remain fixed throughout Pruning. Anchor stores the latest feasible catheter set and FISTA dwell times. The superscripts ``check'' and ``trial'' identify coverage-assessment and tentative-removal variables, respectively.\par
 \end{algorithmblock}
 
 \end{document}
