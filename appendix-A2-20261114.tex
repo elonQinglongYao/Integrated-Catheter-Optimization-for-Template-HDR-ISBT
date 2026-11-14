@@ -1,0 +1,179 @@
+% !TeX program = pdflatex
+% 基于提供的 Medical Physics 2021 模板。使用 pdfLaTeX 编译两次。
+% 内容来自 manuscript-20261114.docx；修改正文后重新编译。
+\documentclass[12pt,twoside,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}            % 数学公式
+\usepackage{graphicx}                   % 图片
+\usepackage{placeins}                   % 在必要边界清理待排图表
+\usepackage{float}                      % 图表保留在对应正文位置
+\usepackage{booktabs,array,tabularx}                   % 三线表
+\usepackage[super,sort&compress,comma]{natbib} % 上标数字引用，连续编号合并为范围
+\usepackage{setspace}                   % 行距
+\usepackage[mathlines]{lineno}          % 连续行号
+\modulolinenumbers[5]                  % 每 5 行显示一次行号
+\usepackage{fancyhdr}                   % 页眉与页脚
+\usepackage[hidelinks]{hyperref}        % 可点击的引用和链接
+\graphicspath{{figures/}}               % 图片放在 figures 文件夹
+
+% 页面尺寸与章节编号，一般不需要修改。
+\setlength{\textwidth}{16.5cm}
+\setlength{\textheight}{22.6cm}
+\setlength{\oddsidemargin}{-1mm}
+\setlength{\evensidemargin}{-2mm}
+\setlength{\topmargin}{-1cm}
+\setlength{\headheight}{15pt}
+\setlength{\headwidth}{\textwidth}
+\setlength{\parindent}{0pt}             % 段落首行不缩进
+\setlength{\parskip}{1.3ex}
+\renewcommand{\thesection}{\Roman{section}.}
+\renewcommand{\thesubsection}{\thesection\Alph{subsection}.}
+\renewcommand{\thesubsubsection}{\thesubsection\arabic{subsubsection}.}
+\makeatletter
+\renewcommand\@biblabel[1]{$^{#1}$}
+\makeatother
+\setlength{\bibhang}{0em}
+
+
+\setlength{\emergencystretch}{3em}
+
+% 图表、表注和后续算法统一使用 8 pt、单倍行距。
+\newcommand{\compactformat}{\setstretch{1}\fontsize{8}{9.6}\selectfont}
+\makeatletter
+\long\def\@makecaption#1#2{%
+  \vskip\abovecaptionskip
+  \begingroup
+    \compactformat
+    \sbox\@tempboxa{#1: #2}%
+    \ifdim\wd\@tempboxa>\hsize
+      #1: #2\par
+    \else
+      \global\@minipagefalse
+      \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}%
+    \fi
+  \endgroup
+  \vskip\belowcaptionskip}
+\makeatother
+
+% 优先在段落边界分页，避免孤行及从断词处跨页；长段落仍允许分页。
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\brokenpenalty=10000
+\interlinepenalty=150
+
+% 所有页面右上角显示页码，页眉为细横线，页脚留空且无线条。
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyhead[R]{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+
+% 全文单栏；图表自动适配页面宽度。
+
+% Allow nearby text and floats to share a page; avoid sparse float-only pages.
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.90}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.98}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{3}
+\setcounter{totalnumber}{6}
+\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
+\setlength{\intextsep}{12pt plus 2pt minus 2pt}
+
+
+% Algorithm title, pseudocode and note form one indivisible 8 pt block.
+\newcounter{algorithm}
+\makeatletter
+\newcommand{\fnum@algorithm}{Algorithm \thealgorithm}
+\newenvironment{algorithmblock}{%
+  \begin{table}[H]\begin{minipage}{\linewidth}%
+  \compactformat\let\footnotesize\compactformat
+  \def\@captype{algorithm}%
+}{\end{minipage}\end{table}}
+\makeatother
+
+\makeatletter\providecommand{\ext@algorithm}{loa}\makeatother
+
+\setlength{\floatsep}{8pt plus 1pt minus 1pt}
+
+
+
+\begin{document}
+
+\raggedbottom
+
+\setstretch{1.5}
+
+\linenumbers
+
+\section*{A.2. FISTA Implementation and Control Flow}
+
+\renewcommand{\thealgorithm}{A\arabic{algorithm}}
+
+All dwell times in the initial catheter pool were initialized to 1 s so that all catheters were initially active. FISTA used groupwise proximal updates with backtracking. The first block ran for 500 iterations before $K$ was updated. Each subsequent block began with 50 stabilization iterations without convergence assessment. After this period, 10 consecutive iterations ending in line-search failure triggered an early $K$ update and initiated the next block.
+
+\begin{algorithmblock}
+\setlength{\parskip}{0pt}
+\caption{Adaptive catheter number determination using Group-Sparsity and Pruning.}\label{alg:1}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1}
+\begin{tabularx}{\linewidth}{@{}>{\raggedleft\arraybackslash}p{12pt}>{\raggedright\arraybackslash}p{0.59\linewidth}>{\raggedright\arraybackslash}X@{}}
+\specialrule{0.5pt}{1.5pt}{1.5pt}
+\multicolumn{3}{@{}p{\linewidth}@{}}{\textbf{Input:} Initial catheter pool $\mathcal{C}_{0}$, dose data, and clinical dose bounds\newline \textbf{Output:} Retained catheter set $\mathcal{C}$ and dwell times $t$, or FAILURE} \\
+\specialrule{1.5pt}{1.5pt}{1.5pt}
+1 & \textbf{1. Group-Sparsity} &  \\
+2 & \hspace*{6.475pt}$t\  \leftarrow \ 1\ s;\ K\  \leftarrow \ 20;\ Anchor\  \leftarrow \ \varnothing$ & \# Initialize optimization \\
+3 & \hspace*{6.475pt}Set sparsity weights using Equation (5) & \# Assign catheter penalties \\
+4 & \hspace*{6.475pt}\textbf{For} $k\  = \ 1,\ \ldots,\ 20,000$: & \# Limit FISTA iterations \\
+5 & \hspace*{15.125pt}$t\  \leftarrow \ FISTAUpdate\left( t,\ K \right)$ & \# Minimize $F_{\text{dose}}\left( t \right)\  + \ F_{\text{sparse}}\left( t \right)$ \\
+6 & \hspace*{15.125pt}$\mathcal{C}\  \leftarrow \ ActiveCatheters\left( t \right)$ & \# Identify retained catheters \\
+7 & \hspace*{15.125pt}\textbf{If} $\text{CoverageCheckDue}\left( k\mathcal{,\ C},\ Anchor \right)$: & \# First check or count reduction \\
+8 & \hspace*{23.75pt}$t^{\text{check}}\  \leftarrow \ DoseReopt\left( \mathcal{C,\ }t \right)$ & \# Assess dose-only feasibility \\
+9 & \hspace*{23.75pt}\textbf{If} $D_{90}\left( t^{\text{check}} \right)\  \geq \ 0.95D_{T}^{\text{LB}}$: & \# Check target coverage \\
+10 & \hspace*{32.4pt}$Anchor\  \leftarrow \ \left( \mathcal{C,\ }t \right)$ & \# Save the FISTA solution \\
+11 & \hspace*{23.75pt}\textbf{Else if} $Anchor\  = \ \varnothing$: & \# No feasible anchor available \\
+12 & \hspace*{32.4pt}\textbf{Return} FAILURE & \# Terminate the workflow \\
+13 & \hspace*{23.75pt}\textbf{Else:} & \# Restore previous feasibility \\
+14 & \hspace*{32.4pt}$\left( \mathcal{C,\ }t \right)\  \leftarrow \ Restore\left( \text{Anchor} \right)$ & \# Recover the latest anchor \\
+15 & \hspace*{32.4pt}\textbf{Break} & \# Stop FISTA \\
+16 & \hspace*{15.125pt}\textbf{If} KStageEnds: & \# Scheduled or early K update \\
+17 & \hspace*{23.75pt}\textbf{If} KStageStable: & \# Three eligible stable comparisons \\
+18 & \hspace*{32.4pt}\textbf{Break} & \# Stop catheter selection \\
+19 & \hspace*{23.75pt}Update $K$ using Equation (6) & \# Adjust sparsity strength \\
+20 & \hspace*{23.75pt}Update weights using Equation (5) & \# Refresh catheter penalties \\
+\cmidrule[0.5pt]{2-3}
+21 & \textbf{2. Pruning} &  \\
+22 & \hspace*{6.475pt}$\tau_{c}\  \leftarrow \ CatheterDwellTotals\left( \mathcal{C,\ }t \right)$ & \# Use the final FISTA solution \\
+23 & \hspace*{6.475pt}$Order\  \leftarrow \ SortAscending\left( \mathcal{C,\ }\tau_{c} \right)$ & \# Fix the removal order \\
+24 & \hspace*{6.475pt}$Budget\  \leftarrow \ 0.05\sum_{c}^{}\tau_{c};\ Removed\  \leftarrow \ 0$ & \# Fix the deletion budget \\
+25 & \hspace*{6.475pt}$t\  \leftarrow \ DoseReopt\left( \mathcal{C,\ }t \right)$ & \# Establish the initial solution \\
+26 & \hspace*{6.475pt}\textbf{For} $c$ in Order: & \# Test sequential removal \\
+27 & \hspace*{15.125pt}\textbf{If} $\left| \mathcal{C} \right|\  \leq \ 1$ or $Removed\  + \ \tau_{c}\  > \ Budget$: & \# Check removal limits \\
+28 & \hspace*{23.75pt}\textbf{Break} & \# Stop Pruning \\
+29 & \hspace*{15.125pt}$\mathcal{C}^{\text{trial}}\mathcal{\  \leftarrow \ C\  \smallsetminus \ }\left\{ c \right\}$ & \# Tentatively remove one catheter \\
+30 & \hspace*{15.125pt}$t^{\text{trial}}\  \leftarrow \ DoseReopt\left( \mathcal{C}^{\text{trial}},\ t \right)$ & \# Reoptimize remaining dwell times \\
+31 & \hspace*{15.125pt}\textbf{If} $F_{\text{dose}}\left( t^{\text{trial}} \right)$ is finite & \# Require a valid dose objective \\
+32 & \hspace*{19.45pt}\textbf{and} $D_{90}\left( t^{\text{trial}} \right)\  \geq \ 0.95D_{T}^{\text{LB}}$: & \# Require sufficient coverage \\
+33 & \hspace*{23.75pt}$\left( \mathcal{C,\ }t \right)\  \leftarrow \ \left( \mathcal{C}^{\text{trial}},\ t^{\text{trial}} \right)$ & \# Accept the removal \\
+34 & \hspace*{23.75pt}$Removed\  \leftarrow \ Removed\  + \ \tau_{c}$ & \# Accumulate removed dwell time \\
+35 & \hspace*{15.125pt}\textbf{Else:} & \# Reject the trial configuration \\
+36 & \hspace*{23.75pt}\textbf{Break} & \# Retain the last accepted solution \\
+37 & \hspace*{6.475pt}\textbf{Return} $\left( \mathcal{C,\ }t \right)$ & \# Pass to configuration optimization \\
+\specialrule{1.5pt}{1.5pt}{1.5pt}
+\end{tabularx}
+\par\vspace{3pt}
+\noindent Note: $\mathcal{C}$ denotes the catheter set, and $\left| \mathcal{C} \right|$ its catheter count. $D_{T}^{\text{LB}}$ is the HR-CTV D\textsubscript{90} of the corresponding original, unrescaled clinical plan. DoseReopt minimizes $F_{\text{dose}}\left( t \right)$ using L-BFGS-B with nonnegative bounds and at most 50 iterations. CoverageCheckDue triggers at iteration 551 and subsequently when catheter count falls below that of the latest feasible anchor. KStageEnds and KStageStable follow the update and stability rules in Section 2.2.2 and Appendix A.2. For Pruning, $\tau_{c}$ denotes the total dwell time of catheter $c$ in the final FISTA solution; these values, the ascending removal order, and the 5\% deletion budget remain fixed throughout Pruning. Anchor stores the latest feasible catheter set and FISTA dwell times. The superscripts ``check'' and ``trial'' identify coverage-assessment and tentative-removal variables, respectively.\par
+\end{algorithmblock}
+
+\end{document}

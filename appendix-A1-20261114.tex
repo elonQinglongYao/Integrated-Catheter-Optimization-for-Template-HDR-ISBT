@@ -1,0 +1,134 @@
+% !TeX program = pdflatex
+% 基于提供的 Medical Physics 2021 模板。使用 pdfLaTeX 编译两次。
+% 内容来自 manuscript-20261114.docx；修改正文后重新编译。
+\documentclass[12pt,twoside,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}            % 数学公式
+\usepackage{graphicx}                   % 图片
+\usepackage{placeins}                   % 在必要边界清理待排图表
+\usepackage{float}                      % 图表保留在对应正文位置
+\usepackage{booktabs,array,tabularx}                   % 三线表
+\usepackage[super,sort&compress,comma]{natbib} % 上标数字引用，连续编号合并为范围
+\usepackage{setspace}                   % 行距
+\usepackage[mathlines]{lineno}          % 连续行号
+\modulolinenumbers[5]                  % 每 5 行显示一次行号
+\usepackage{fancyhdr}                   % 页眉与页脚
+\usepackage[hidelinks]{hyperref}        % 可点击的引用和链接
+\graphicspath{{figures/}}               % 图片放在 figures 文件夹
+
+% 页面尺寸与章节编号，一般不需要修改。
+\setlength{\textwidth}{16.5cm}
+\setlength{\textheight}{22.6cm}
+\setlength{\oddsidemargin}{-1mm}
+\setlength{\evensidemargin}{-2mm}
+\setlength{\topmargin}{-1cm}
+\setlength{\headheight}{15pt}
+\setlength{\headwidth}{\textwidth}
+\setlength{\parindent}{0pt}             % 段落首行不缩进
+\setlength{\parskip}{1.3ex}
+\renewcommand{\thesection}{\Roman{section}.}
+\renewcommand{\thesubsection}{\thesection\Alph{subsection}.}
+\renewcommand{\thesubsubsection}{\thesubsection\arabic{subsubsection}.}
+\makeatletter
+\renewcommand\@biblabel[1]{$^{#1}$}
+\makeatother
+\setlength{\bibhang}{0em}
+
+
+\setlength{\emergencystretch}{3em}
+
+% 图表、表注和后续算法统一使用 8 pt、单倍行距。
+\newcommand{\compactformat}{\setstretch{1}\fontsize{8}{9.6}\selectfont}
+\makeatletter
+\long\def\@makecaption#1#2{%
+  \vskip\abovecaptionskip
+  \begingroup
+    \compactformat
+    \sbox\@tempboxa{#1: #2}%
+    \ifdim\wd\@tempboxa>\hsize
+      #1: #2\par
+    \else
+      \global\@minipagefalse
+      \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}%
+    \fi
+  \endgroup
+  \vskip\belowcaptionskip}
+\makeatother
+
+% 优先在段落边界分页，避免孤行及从断词处跨页；长段落仍允许分页。
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\brokenpenalty=10000
+\interlinepenalty=150
+
+% 所有页面右上角显示页码，页眉为细横线，页脚留空且无线条。
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyhead[R]{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+
+% 全文单栏；图表自动适配页面宽度。
+
+% Allow nearby text and floats to share a page; avoid sparse float-only pages.
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.90}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.98}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{3}
+\setcounter{totalnumber}{6}
+\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
+\setlength{\intextsep}{12pt plus 2pt minus 2pt}
+
+
+% Algorithm title, pseudocode and note form one indivisible 8 pt block.
+\newcounter{algorithm}
+\makeatletter
+\newcommand{\fnum@algorithm}{Algorithm \thealgorithm}
+\newenvironment{algorithmblock}{%
+  \begin{table}[H]\begin{minipage}{\linewidth}%
+  \compactformat\let\footnotesize\compactformat
+  \def\@captype{algorithm}%
+}{\end{minipage}\end{table}}
+\makeatother
+
+\makeatletter\providecommand{\ext@algorithm}{loa}\makeatother
+
+\setlength{\floatsep}{8pt plus 1pt minus 1pt}
+
+
+
+\begin{document}
+
+\raggedbottom
+
+\setstretch{1.5}
+
+\linenumbers
+
+\section*{A.1. Proxy Dose Calculation and Iterative Reweighting}
+
+For the score in Equation (3), the unnormalized proxy dose contribution ${\widetilde{d}}_{\text{ci}}$ was calculated by summing the dose contributions at sampling point $i$ from dwell positions spaced 5 mm apart along candidate catheter $c$ between its HR-CTV entry and exit points, assuming a nominal dwell time of 1 s at each position. The normalized proxy dose contribution was defined as $q_{\text{ci}} = \min\left( \frac{{\widetilde{d}}_{\text{ci}}}{P_{95}},1 \right)$, where $P_{95}$ is the 95th percentile of positive ${\widetilde{d}}_{\text{ci}}$ values across all candidate catheter--sampling-point pairs.
+
+The weights were initialized as $w_{i,initial}^{\text{cold}} = v_{i}^{T}$ and $w_{i,initial}^{\text{risk}} = 0.2b_{i}^{O}$, where $b_{i}^{O} = \sum_{r}^{}v_{\text{ri}}^{O}\frac{D_{T}^{\text{LB}}}{D_{r}^{\text{UB}}}$ is the baseline OAR-risk factor at sampling point $i$. The volume fractions $v_{i}^{T}$ and $v_{\text{ri}}^{O}$ and the clinical reference bounds $D_{T}^{\text{LB}}$ and $D_{r}^{\text{UB}}$ are defined in Section 2.2.
+
+After each core catheter $c$ was selected, the weights were updated as follows:
+
+\begin{equation}\tag{A1}w_{i}^{\text{cold}} \leftarrow w_{i}^{\text{cold}}\max\left( 0,\ 1 - q_{\text{ci}} \right),\end{equation}
+
+\begin{equation}\tag{A2}w_{i}^{\text{risk}} = b_{i}^{O}\left\lbrack 0.2 + \left( \frac{d_{i}^{\text{acc}}}{D_{T}^{\text{LB}}} \right)^{2} \right\rbrack,\end{equation}
+
+where $d_{i}^{\text{acc}}$ denotes the sum of the unnormalized proxy dose contributions at sampling point $i$ from the core catheters selected up to the current iteration. Candidate scores were then recalculated using the updated weights.
+
+\end{document}
